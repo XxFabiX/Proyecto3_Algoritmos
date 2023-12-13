@@ -6,6 +6,7 @@
 #include <chrono>
 #include <numeric>
 #include <iomanip>
+#include <stack>
 
 using namespace std;
 using namespace std::chrono;
@@ -66,6 +67,8 @@ void bubbleSort(vector<int> &arreglo) {
 
 void insertionSort(vector<int> &arreglo) {
     int n = arreglo.size();
+    auto inicio = high_resolution_clock::now();
+
     for (int i = 1; i < n; ++i) {
         int key = arreglo[i];
         int j = i - 1;
@@ -75,6 +78,12 @@ void insertionSort(vector<int> &arreglo) {
         }
         arreglo[j + 1] = key;
     }
+
+    auto fin = high_resolution_clock::now();
+    auto duracion = duration_cast<nanoseconds>(fin - inicio);
+    double duracionSegundos = duracion.count() / 1e9;
+
+    //cout << "Insertion Sort: " << fixed << setprecision(15) << duracionSegundos << " s\n";
 }
 
 void shellSort(vector<int> &arreglo) {
@@ -155,19 +164,45 @@ int partition(vector<int>& arreglo, int low, int high) {
     return i + 1;
 }
 
-// Funcion Quick Sort RECURSIVA
-void quickSortRecursive(vector<int>& arreglo, int low, int high) {
-    if (low < high) {
-        int pivot = partition(arreglo, low, high);
+void quickSortIterative(vector<int>& arreglo, int low, int high) {
+    // Creamos una pila auxiliar para la implementacion iterativa de quick PD:profe nose si esta bien asi :(
+    stack<int> pila;
 
-        quickSortRecursive(arreglo, low, pivot - 1);
-        quickSortRecursive(arreglo, pivot + 1, high);
+    // Hacemos push de los valores iniciales de low y high en la pila
+    pila.push(low);
+    pila.push(high);
+
+    // Mientras la pila no este vacia
+    while (!pila.empty()) {
+        // Pop de high y low
+        high = pila.top();
+        pila.pop();
+        low = pila.top();
+        pila.pop();
+
+        // Obtener el indice del pivote
+        int pivotIndex = partition(arreglo, low, high);
+
+        // Si hay elementos a la izquierda del pivote, agregarlos a la pila
+        if (pivotIndex - 1 > low) {
+            pila.push(low);
+            pila.push(pivotIndex - 1);
+        }
+
+        // Si hay elementos a la derecha del pivote, agregarlos a la pila
+        if (pivotIndex + 1 < high) {
+            pila.push(pivotIndex + 1);
+            pila.push(high);
+        }
     }
 }
 
+
 void quickSort(vector<int>& arreglo, int low, int high) {
-    quickSortRecursive(arreglo, low, high);
+    quickSortIterative(arreglo, low, high);
 }
+
+
 
 void heapify(vector<int> &arreglo, int n, int i) {
     int largest = i;
@@ -216,7 +251,12 @@ void imprimirTiempo(const string& nombreAlgoritmo, vector<int>& arreglo) {
     } else if (nombreAlgoritmo == "Merge Sort") {
         mergeSort(arreglo, 0, arreglo.size() - 1);
     } else if (nombreAlgoritmo == "Quick Sort") {
-        quickSort(arreglo, 0, arreglo.size() - 1);
+        try {
+            quickSortIterative(arreglo, 0, arreglo.size() - 1);
+        } catch (const exception& e) {
+            cerr << "Excepción en Quick Sort: " << e.what() << endl;
+            return;
+        }
     } else if (nombreAlgoritmo == "Heap Sort") {
         heapSort(arreglo);
     }
@@ -235,7 +275,7 @@ int main() {
 
     int opcion;
     do {
-        // Menu
+        // Menu principal
         cout << "Menu Principal\n";
         cout << "1. Colas de espera\n";
         cout << "2. Trazabilidad de objetos\n";
@@ -246,71 +286,259 @@ int main() {
 
         switch (opcion) {
             case 1: {
+                int subOpcion;
+                // Elegir el tipo de arreglo
+                cout << "\nSeleccione el tipo de arreglo:\n";
+                cout << "1. Ordenado\n";
+                cout << "2. Inversamente Ordenado\n";
+                cout << "3. Aleatorio\n";
+                cout << "4. Aleatorio con Duplicados\n";
+                cout << "Opcion: ";
+                cin >> subOpcion;
+
                 int n = rand() % 11001 + 100000; // Aleatorio entre 100,000 y 110,000
-                cout << "Largo del arreglo: " << n << "\n";
 
-                // Modo Ordenado
-                vector<int> ordenado = generarOrdenado(n);
-                vector<int> ordenado_copy = ordenado;
-                cout << "Generando arreglo ordenado....\n";
-                cout << "Carrera Cola de espera, Modo Ordenado\n";
-                imprimirTiempo("Selection Sort", ordenado_copy);
-                imprimirTiempo("Bubble Sort", ordenado_copy);
-                imprimirTiempo("Insertion Sort", ordenado_copy);
-                imprimirTiempo("Shell Sort", ordenado_copy);
-                imprimirTiempo("Merge Sort", ordenado_copy);
-                imprimirTiempo("Quick Sort", ordenado_copy);
-                imprimirTiempo("Heap Sort", ordenado_copy);
-
-                // Modo Inversamente Ordenado
-                vector<int> inversamenteOrdenado = generarInversamenteOrdenado(n);
-                vector<int> inversamenteOrdenado_copy = inversamenteOrdenado;
-                cout << "Generando arreglo Inversamente Ordenado....\n";
-                cout << "\nCarrera Cola de espera, Modo Inversamente Ordenado\n";
-                imprimirTiempo("Selection Sort", inversamenteOrdenado_copy);
-                imprimirTiempo("Bubble Sort", inversamenteOrdenado_copy);
-                imprimirTiempo("Insertion Sort", inversamenteOrdenado_copy);
-                imprimirTiempo("Shell Sort", inversamenteOrdenado_copy);
-                imprimirTiempo("Merge Sort", inversamenteOrdenado_copy);
-                imprimirTiempo("Quick Sort", inversamenteOrdenado_copy);
-                imprimirTiempo("Heap Sort", inversamenteOrdenado_copy);
-
-                // Modo Aleatorio
-                vector<int> aleatorio = generarAleatorio(n);
-                vector<int> aleatorio_copy = aleatorio;
-                cout << "Generando arreglo aleatorio....\n";
-                cout << "\nCarrera Cola de espera, Modo Aleatorio\n";
-                imprimirTiempo("Selection Sort", aleatorio_copy);
-                imprimirTiempo("Bubble Sort", aleatorio_copy);
-                imprimirTiempo("Insertion Sort", aleatorio_copy);
-                imprimirTiempo("Shell Sort", aleatorio_copy);
-                imprimirTiempo("Merge Sort", aleatorio_copy);
-                imprimirTiempo("Quick Sort", aleatorio_copy);
-                imprimirTiempo("Heap Sort", aleatorio_copy);
-
-                // Modo Aleatorio con Duplicados
-                vector<int> aleatorioConDuplicados = generarAleatorioConDuplicados(n);
-                vector<int> aleatorioConDuplicados_copy = aleatorioConDuplicados;
-                cout << "Generando arreglo aleatorio con duplicados....\n";
-                cout << "\nCarrera Cola de espera, Modo Aleatorio con duplicados\n";
-                imprimirTiempo("Selection Sort", aleatorioConDuplicados_copy);
-                imprimirTiempo("Bubble Sort", aleatorioConDuplicados_copy);
-                imprimirTiempo("Insertion Sort", aleatorioConDuplicados_copy);
-                imprimirTiempo("Shell Sort", aleatorioConDuplicados_copy);
-                imprimirTiempo("Merge Sort", aleatorioConDuplicados_copy);
-                imprimirTiempo("Quick Sort", aleatorioConDuplicados_copy);
-                imprimirTiempo("Heap Sort", aleatorioConDuplicados_copy);
+                switch (subOpcion) {
+                    case 1: {
+                        vector<int> ordenado = generarOrdenado(n);
+                        cout << "Generando arreglo Ordenado....\n";
+                        cout << "\nCarrera Cola de espera, Modo Ordenado\n";
+                        
+                        imprimirTiempo("Quick Sort", ordenado);
+                        imprimirTiempo("Heap Sort", ordenado);
+                        imprimirTiempo("Shell Sort", ordenado);
+                        imprimirTiempo("Merge Sort", ordenado);
+                        imprimirTiempo("Selection Sort", ordenado);
+                        imprimirTiempo("Bubble Sort", ordenado);
+                        imprimirTiempo("Insertion Sort", ordenado);
+                        
+                        break;
+                    }
+                    case 2: {
+                        vector<int> inversamenteOrdenado = generarInversamenteOrdenado(n);
+                        cout << "Generando arreglo Inversamente Ordenado....\n";
+                        cout << "\nCarrera Cola de espera, Modo Inversamente Ordenado\n";
+                        
+                        imprimirTiempo("Quick Sort", inversamenteOrdenado);
+                        imprimirTiempo("Heap Sort", inversamenteOrdenado);
+                        imprimirTiempo("Shell Sort", inversamenteOrdenado);
+                        imprimirTiempo("Merge Sort", inversamenteOrdenado);
+                        imprimirTiempo("Selection Sort", inversamenteOrdenado);
+                        imprimirTiempo("Bubble Sort", inversamenteOrdenado);
+                        imprimirTiempo("Insertion Sort", inversamenteOrdenado);
+                        
+                        break;
+                    }
+                    case 3: {
+                        vector<int> aleatorio = generarAleatorio(n);
+                        cout << "Generando arreglo Aleatorio....\n";
+                        cout << "\nCarrera Cola de espera, Modo Aleatorio\n";
+                        
+                        imprimirTiempo("Quick Sort", aleatorio);
+                        imprimirTiempo("Heap Sort", aleatorio);
+                        imprimirTiempo("Shell Sort", aleatorio);
+                        imprimirTiempo("Merge Sort", aleatorio);
+                        imprimirTiempo("Selection Sort", aleatorio);
+                        imprimirTiempo("Bubble Sort", aleatorio);
+                        imprimirTiempo("Insertion Sort", aleatorio);
+                        
+                        break;
+                    }
+                    case 4: {
+                        vector<int> aleatorioConDuplicados = generarAleatorioConDuplicados(n);
+                        cout << "Generando arreglo Aleatorio con Duplicados....\n";
+                        cout << "\nCarrera Cola de espera, Modo Aleatorio con Duplicados\n";
+                        
+                        imprimirTiempo("Quick Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Heap Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Shell Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Merge Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Selection Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Bubble Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Insertion Sort", aleatorioConDuplicados);
+                        
+                        break;
+                    }
+                    default:
+                        cout << "Opcion no valida.\n";
+                        break;
+                }
 
                 break;
             }
             
+            case 2: {
+			    // Generar n para Trazabilidad de objetos
+			    int n = (rand() % 501 + 1000) * 15; // Aleatorio entre 1,000 y 15,000 multiplicado por 15
+			    cout << "Numero generado (n): " << n << endl;
+			
+			    // Elegir el tipo de arreglo
+			    int subOpcion;
+			    cout << "\nSeleccione el tipo de arreglo:\n";
+			    cout << "1. Ordenado\n";
+			    cout << "2. Inversamente Ordenado\n";
+			    cout << "3. Aleatorio\n";
+			    cout << "4. Aleatorio con Duplicados\n";
+			    cout << "Opcion: ";
+			    cin >> subOpcion;
+			
+			    switch (subOpcion) {
+			        case 1: {
+			            vector<int> ordenado = generarOrdenado(n);
+			            cout << "Generando arreglo Ordenado....\n";
+			            cout << "\nCarrera Trazabilidad de objetos, Modo Ordenado\n";
+			
+			            imprimirTiempo("Quick Sort", ordenado);
+			            imprimirTiempo("Heap Sort", ordenado);
+			            imprimirTiempo("Shell Sort", ordenado);
+			            imprimirTiempo("Merge Sort", ordenado);
+			            imprimirTiempo("Selection Sort", ordenado);
+			            imprimirTiempo("Bubble Sort", ordenado);
+			            imprimirTiempo("Insertion Sort", ordenado);
+			
+			            break;
+			        }
+			        case 2: {
+			            vector<int> inversamenteOrdenado = generarInversamenteOrdenado(n);
+			            cout << "Generando arreglo Inversamente Ordenado....\n";
+			            cout << "\nCarrera Trazabilidad de objetos, Modo Inversamente Ordenado\n";
+			
+			            imprimirTiempo("Quick Sort", inversamenteOrdenado);
+			            imprimirTiempo("Heap Sort", inversamenteOrdenado);
+			            imprimirTiempo("Shell Sort", inversamenteOrdenado);
+			            imprimirTiempo("Merge Sort", inversamenteOrdenado);
+			            imprimirTiempo("Selection Sort", inversamenteOrdenado);
+			            imprimirTiempo("Bubble Sort", inversamenteOrdenado);
+			            imprimirTiempo("Insertion Sort", inversamenteOrdenado);
+			
+			            break;
+			        }
+			        case 3: {
+			            vector<int> aleatorio = generarAleatorio(n);
+			            cout << "Generando arreglo Aleatorio....\n";
+			            cout << "\nCarrera Trazabilidad de objetos, Modo Aleatorio\n";
+			
+			            imprimirTiempo("Quick Sort", aleatorio);
+			            imprimirTiempo("Heap Sort", aleatorio);
+			            imprimirTiempo("Shell Sort", aleatorio);
+			            imprimirTiempo("Merge Sort", aleatorio);
+			            imprimirTiempo("Selection Sort", aleatorio);
+			            imprimirTiempo("Bubble Sort", aleatorio);
+			            imprimirTiempo("Insertion Sort", aleatorio);
+			
+			            break;
+			        }
+			        case 4: {
+			            vector<int> aleatorioConDuplicados = generarAleatorioConDuplicados(n);
+			            cout << "Generando arreglo Aleatorio con Duplicados....\n";
+			            cout << "\nCarrera Trazabilidad de objetos, Modo Aleatorio con Duplicados\n";
+			
+			            imprimirTiempo("Quick Sort", aleatorioConDuplicados);
+			            imprimirTiempo("Heap Sort", aleatorioConDuplicados);
+			            imprimirTiempo("Shell Sort", aleatorioConDuplicados);
+			            imprimirTiempo("Merge Sort", aleatorioConDuplicados);
+			            imprimirTiempo("Selection Sort", aleatorioConDuplicados);
+			            imprimirTiempo("Bubble Sort", aleatorioConDuplicados);
+			            imprimirTiempo("Insertion Sort", aleatorioConDuplicados);
+			
+			            break;
+			        }
+			        default:
+			            cout << "Opcion no valida.\n";
+			            break;
+			    }
+			
+			    break;
+			}
+			
+			case 3: {
+                // Generar n para Eventos en Cada Escenario
+                int n = rand() % 20001 + 60000; // Aleatorio entre 60,000 y 80,000
+                cout << "Numero generado (n): " << n << endl;
+
+                // Elegir el tipo de arreglo
+                int subOpcion;
+                cout << "\nSeleccione el tipo de arreglo:\n";
+                cout << "1. Ordenado\n";
+                cout << "2. Inversamente Ordenado\n";
+                cout << "3. Aleatorio\n";
+                cout << "4. Aleatorio con Duplicados\n";
+                cout << "Opcion: ";
+                cin >> subOpcion;
+
+                switch (subOpcion) {
+                    case 1: {
+                        vector<int> ordenado = generarOrdenado(n);
+                        cout << "Generando arreglo Ordenado....\n";
+                        cout << "\nEventos en Cada Escenario, Modo Ordenado\n";
+
+                        imprimirTiempo("Quick Sort", ordenado);
+                        imprimirTiempo("Heap Sort", ordenado);
+                        imprimirTiempo("Shell Sort", ordenado);
+                        imprimirTiempo("Merge Sort", ordenado);
+                        imprimirTiempo("Selection Sort", ordenado);
+                        imprimirTiempo("Bubble Sort", ordenado);
+                        imprimirTiempo("Insertion Sort", ordenado);
+
+                        break;
+                    }
+                    case 2: {
+                        vector<int> inversamenteOrdenado = generarInversamenteOrdenado(n);
+                        cout << "Generando arreglo Inversamente Ordenado....\n";
+                        cout << "\nEventos en Cada Escenario, Modo Inversamente Ordenado\n";
+
+                        imprimirTiempo("Quick Sort", inversamenteOrdenado);
+                        imprimirTiempo("Heap Sort", inversamenteOrdenado);
+                        imprimirTiempo("Shell Sort", inversamenteOrdenado);
+                        imprimirTiempo("Merge Sort", inversamenteOrdenado);
+                        imprimirTiempo("Selection Sort", inversamenteOrdenado);
+                        imprimirTiempo("Bubble Sort", inversamenteOrdenado);
+                        imprimirTiempo("Insertion Sort", inversamenteOrdenado);
+
+                        break;
+                    }
+                    case 3: {
+                        vector<int> aleatorio = generarAleatorio(n);
+                        cout << "Generando arreglo Aleatorio....\n";
+                        cout << "\nEventos en Cada Escenario, Modo Aleatorio\n";
+
+                        imprimirTiempo("Quick Sort", aleatorio);
+                        imprimirTiempo("Heap Sort", aleatorio);
+                        imprimirTiempo("Shell Sort", aleatorio);
+                        imprimirTiempo("Merge Sort", aleatorio);
+                        imprimirTiempo("Selection Sort", aleatorio);
+                        imprimirTiempo("Bubble Sort", aleatorio);
+                        imprimirTiempo("Insertion Sort", aleatorio);
+
+                        break;
+                    }
+                    case 4: {
+                        vector<int> aleatorioConDuplicados = generarAleatorioConDuplicados(n);
+                        cout << "Generando arreglo Aleatorio con Duplicados....\n";
+                        cout << "\nEventos en Cada Escenario, Modo Aleatorio con Duplicados\n";
+
+                        imprimirTiempo("Quick Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Heap Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Shell Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Merge Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Selection Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Bubble Sort", aleatorioConDuplicados);
+                        imprimirTiempo("Insertion Sort", aleatorioConDuplicados);
+
+                        break;
+                    }
+                    default:
+                        cout << "Opcion no valida.\n";
+                        break;
+                }
+
+                break;
+            }
+            // Fin switch
         }
-        
+
     } while (opcion != 4);
 
     return 0;
 }
-
-
-
 
