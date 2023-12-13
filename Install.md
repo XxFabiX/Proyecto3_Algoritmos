@@ -8,7 +8,7 @@ Antes de instalar el programa, tenga en cuenta los siguientes requisitos:
 
 ## Pasos de Instalación
 
-1. Clonar Repositorio
+1. Clonar Repositorio https://github.com/XxFabiX/Proyecto3_Algoritmos
 2. Compila el programa
 3. Ejecuta el programa
 4. Explora el programa a traves de sus opciones
