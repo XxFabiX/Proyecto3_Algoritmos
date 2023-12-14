@@ -15,26 +15,26 @@ using namespace std::chrono;
 vector<int> generarAleatorio(int n) {
     vector<int> arreglo(n);
     iota(arreglo.begin(), arreglo.end(), 0);
-    random_shuffle(arreglo.begin(), arreglo.end());
+    random_shuffle(arreglo.begin(), arreglo.end());		// Cambiar aleatoriamente el orden de los elementos
     return arreglo;
 }
 
 vector<int> generarAleatorioConDuplicados(int n) {
     vector<int> arreglo(n);
-    generate(arreglo.begin(), arreglo.end(), [&n]() { return rand() % n; });
+    generate(arreglo.begin(), arreglo.end(), [&n]() { return rand() % n; });		// Generar valores random entre 0 y n-1
     return arreglo;
 }
 
 vector<int> generarOrdenado(int n) {
     vector<int> arreglo(n);
-    iota(arreglo.begin(), arreglo.end(), 0);
+    iota(arreglo.begin(), arreglo.end(), 0);				// Genera valores desde 0 hasta n-1
     return arreglo;
 }
 
 vector<int> generarInversamenteOrdenado(int n) {
     vector<int> arreglo(n);
     iota(arreglo.begin(), arreglo.end(), 0);
-    reverse(arreglo.begin(), arreglo.end());
+    reverse(arreglo.begin(), arreglo.end());		// Invierte lo obtenido con "iota"
     return arreglo;
 }
 
@@ -231,8 +231,9 @@ void heapSort(vector<int> &arreglo) {
     }
 }
 
+// MIde tiempo de cda algoritmo en ordenar un vector dado
 void imprimirTiempo(const string& nombreAlgoritmo, vector<int>& arreglo) {
-    auto inicio = high_resolution_clock::now();
+    auto inicio = high_resolution_clock::now();		
 
     if (nombreAlgoritmo == "Selection Sort") {
         selectionSort(arreglo);
@@ -261,10 +262,10 @@ void imprimirTiempo(const string& nombreAlgoritmo, vector<int>& arreglo) {
     // Convertir ns a decimales
     double duracionSegundos = duracion.count() / 1e9;
 
-    cout << nombreAlgoritmo << ": " << fixed << setprecision(15) << duracionSegundos << " s\n";
+    cout << nombreAlgoritmo << ": " << fixed << setprecision(15) << duracionSegundos << " s\n";		//imprime nombre y duracion 
 }
 
-void ejecutarAlgoritmo(const string& nombreAlgoritmo, vector<int>& arreglo) {
+void ejecutarAlgoritmo(const string& nombreAlgoritmo, vector<int>& arreglo) {		// Ejecuta los algoritmos
     auto inicio = high_resolution_clock::now();
 
     if (nombreAlgoritmo == "Selection Sort") {
@@ -281,7 +282,7 @@ void ejecutarAlgoritmo(const string& nombreAlgoritmo, vector<int>& arreglo) {
         try {
             quickSortIterative(arreglo, 0, arreglo.size() - 1);
         } catch (const exception& e) {
-            cerr << "Excepcion en Quick Sort: " << e.what() << endl;
+            cerr << "Excepcion en Quick Sort: " << e.what() << endl;		// Mostrar esto en caso de excepcion, esta acá porque al principio tuve problemas con este algoritmo
             return;
         }
     } else if (nombreAlgoritmo == "Heap Sort") {
@@ -297,12 +298,24 @@ void ejecutarAlgoritmo(const string& nombreAlgoritmo, vector<int>& arreglo) {
     cout << nombreAlgoritmo << ": " << fixed << setprecision(15) << duracionSegundos << " s\n";
 }
 
-void mostrarGanadorCarrera(const string& nombreAlgoritmo, double tiempo) {
-    cout << "El ganador de la carrera es " << nombreAlgoritmo << "\n";
+void mostrarGanadoresCarrera(const vector<string>& nombresAlgoritmos, const vector<double>& tiempos) {
+    cout << "Los tres primeros ganadores son:\n";
+    
+    // Crear un vector de índices ordenados por tiempo ascendente
+    vector<size_t> indices(nombresAlgoritmos.size());
+    iota(indices.begin(), indices.end(), 0);
+    sort(indices.begin(), indices.end(), [&tiempos](size_t a, size_t b) {
+        return tiempos[a] < tiempos[b];
+    });
+
+    // Mostrar los tres primeros ganadores
+    for (int i = 0; i < min(3, static_cast<int>(nombresAlgoritmos.size())); ++i) {
+        cout << i + 1 << ". " << nombresAlgoritmos[indices[i]] << ": " << fixed << setprecision(15) << tiempos[indices[i]] << " s\n";
+    }
 }
 
 
-void ejecutarCarrera(const string& modo, vector<int>& arreglo) {
+void ejecutarCarrera(const string& modo, vector<int>& arreglo) {		// Ejecuta cda algoritmo en vector, registrando timepos y determinando un ganador
     cout << "Generando arreglo " << modo << "....\n";
     
     vector<string> algoritmos = {"Quick Sort", "Heap Sort", "Shell Sort", "Merge Sort", "Selection Sort", "Bubble Sort", "Insertion Sort"};
@@ -320,8 +333,8 @@ void ejecutarCarrera(const string& modo, vector<int>& arreglo) {
     // Encontrar el indice del minimo tiempo
     auto ganadorIndex = min_element(tiempos.begin(), tiempos.end()) - tiempos.begin();
 
-    // Mostrar el ganador
-    mostrarGanadorCarrera(algoritmos[ganadorIndex], tiempos[ganadorIndex]);
+    // Mostrar el ganador o gnadores
+    mostrarGanadoresCarrera(algoritmos, tiempos);
 }
 
 int main() {
@@ -329,7 +342,7 @@ int main() {
 
     int opcion;
     do {
-        // Menú principal
+        // Menu principal
         cout << "Menu Principal\n";
         cout << "1. Colas de espera\n";
         cout << "2. Trazabilidad de objetos\n";
