@@ -295,7 +295,7 @@ void ejecutarAlgoritmo(const string& nombreAlgoritmo, vector<int>& arreglo) {		/
     // Convertir ns a decimales
     double duracionSegundos = duracion.count() / 1e9;
 
-    cout << nombreAlgoritmo << ": " << fixed << setprecision(15) << duracionSegundos << " s\n";
+    cout << nombreAlgoritmo << ": " << fixed << setprecision(10) << duracionSegundos << " s\n";
 }
 
 void mostrarGanadoresCarrera(const vector<string>& nombresAlgoritmos, const vector<double>& tiempos) {
@@ -318,7 +318,7 @@ void mostrarGanadoresCarrera(const vector<string>& nombresAlgoritmos, const vect
 void ejecutarCarrera(const string& modo, vector<int>& arreglo) {		// Ejecuta cda algoritmo en vector, registrando timepos y determinando un ganador
     cout << "Generando arreglo " << modo << "....\n";
     
-    vector<string> algoritmos = {"Quick Sort", "Heap Sort", "Shell Sort", "Merge Sort", "Selection Sort", "Bubble Sort", "Insertion Sort"};
+    vector<string> algoritmos = {"Insertion Sort", "Quick Sort", "Heap Sort", "Shell Sort", "Merge Sort", "Selection Sort", "Bubble Sort"};
     vector<double> tiempos;
 
     for (const auto& algoritmo : algoritmos) {
