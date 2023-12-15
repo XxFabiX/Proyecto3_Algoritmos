@@ -3,7 +3,7 @@
 De: Fabián Arévalo Valenzuela
 Curso: Algoritmos y estructuras de datos
 Profesor: Manuel Moscoso
-Link Video: 
+Link Video: https://youtu.be/JHZ5x6Fc6Os
 
 ## Descripción del proyecto
 
